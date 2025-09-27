@@ -1,24 +1,27 @@
+import os
+import sys
 import flet as ft
 from interface_views import GerarEscalaView, EditarEscalaView, ConfiguracoesView
+import json
 
 def main(page: ft.Page):
     page.title = "PibShift 2.0"
+    
+    page.window_icon = "favicon.ico" 
+    
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.START
 
-    # Cores da identidade visual
-    page.theme = ft.Theme(
-        color_scheme=ft.ColorScheme(
-            primary=ft.Colors.BLUE_900, # #0D47A1
-            secondary=ft.Colors.AMBER, # #FFC107
-        )
-    )
-    page.dark_theme = ft.Theme(
-        color_scheme=ft.ColorScheme(
-            primary=ft.Colors.BLUE_GREY_800,
-            secondary=ft.Colors.AMBER,
-        )
-    )
+    # Carregar configurações de tema
+    try:
+        settings_str = page.client_storage.get("pibshift.settings")
+        if settings_str:
+            settings = json.loads(settings_str)
+            theme_value = settings.get("theme_mode", "light")
+            page.theme_mode = ft.ThemeMode.DARK if theme_value == "dark" else ft.ThemeMode.LIGHT
+        page.update()
+    except:
+        page.theme_mode = ft.ThemeMode.LIGHT
 
     def navigate_to(view_index):
         main_content.controls.clear()
@@ -34,13 +37,12 @@ def main(page: ft.Page):
     def change_view(e):
         navigate_to(e.control.selected_index)
 
+    # Navigation Rail
     rail = ft.NavigationRail(
         selected_index=0,
         label_type=ft.NavigationRailLabelType.ALL,
         min_width=100,
         min_extended_width=400,
-        leading=ft.FloatingActionButton(icon=ft.Icons.CREATE, text="Nova Escala"),
-        group_alignment=-0.9,
         destinations=[
             ft.NavigationRailDestination(
                 icon=ft.Icons.POST_ADD,
@@ -55,10 +57,32 @@ def main(page: ft.Page):
             ft.NavigationRailDestination(
                 icon=ft.Icons.SETTINGS_OUTLINED,
                 selected_icon=ft.Icons.SETTINGS,
-                label_content=ft.Text("Configurações"),
+                label="Configurações",
             ),
         ],
         on_change=change_view,
+    )
+
+    def nova_escala_click(e):
+        # Limpa o rascunho salvo
+        page.client_storage.remove("rascunho_escala")
+        page.client_storage.remove("available_servers")
+        page.client_storage.remove("ministerios_ativos")
+        # Navega para a tela de gerar escala
+        navigate_to(0)
+
+    # AppBar com botão Nova Escala
+    page.appbar = ft.AppBar(
+        title=ft.Text("PibShift"),
+        actions=[
+            ft.ElevatedButton(
+                "Nova Escala", 
+                icon=ft.Icons.ADD, 
+                on_click=nova_escala_click,
+                bgcolor=ft.Colors.BLUE_GREY_50 if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.BLUE_GREY_900,
+                color=ft.Colors.BLACK if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.WHITE
+            )
+        ]
     )
 
     main_content = ft.Column(alignment=ft.MainAxisAlignment.START, expand=True)
@@ -75,7 +99,7 @@ def main(page: ft.Page):
     )
     
     # Carrega a view inicial
-    main_content.controls.append(GerarEscalaView(page, navigate_to))
+    navigate_to(0)
     page.update()
 
 if __name__ == "__main__":
