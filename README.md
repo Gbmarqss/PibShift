@@ -27,6 +27,10 @@ O software processa a disponibilidade dos voluntários (coletada via Google Form
 * **Manipulação de Dados:** Pandas
 * **Geração de Relatórios:** [Ex: ReportLab para PDF]
 * **Compilação:** [Ex: PyInstaller] (para geração do executável .exe)
+## 💾 Download
+[![Download Windows](https://img.shields.io/badge/Download_Windows-.exe-2ea44f?style=for-the-badge&logo=windows)](https://github.com/Gbmarqss/PibShift/releases/download/v2.0/PibShift.exe)
+
+> **Nota:** O Windows pode exibir um alerta de segurança por ser um .exe de desenvolvedor independente. Clique em "Mais informações" -> "Executar mesmo assim".
 
 ## 🚀 Como Executar
 
